@@ -11,10 +11,27 @@ namespace Ado.NetEmployeePayroll
     class Program
     {
         static void Main(string[] args)
-        {           
-            EmployeeRepository repository = new EmployeeRepository();
-            repository.GetAllEmployees();            
-            Console.ReadLine();
+        {          
+            //UC 2
+            EmployeeRepository repository1 = new EmployeeRepository();
+            repository1.GetAllEmployees();
+            
+            //Adding new employee details
+            EmployeeRepository repository2 = new EmployeeRepository();
+            EmployeeModel model = new EmployeeModel();
+            model.EmployeeName = "shreya";
+            model.Address = "Hyderabad";
+            model.BasicPay = 45;
+            model.Deductions = 454;
+            model.Department = "IT";
+            model.Gender = "F";
+            model.PhoneNumber = 983798;
+            model.NetPay = 833;
+            model.Tax = 32;
+            model.StartDate = DateTime.Now;
+            model.TaxablePay = 324;
+
+            Console.WriteLine(repository2.AddEmployee(model) ? "Record inserted successfully " : "Failed");
         }
     }
 }
