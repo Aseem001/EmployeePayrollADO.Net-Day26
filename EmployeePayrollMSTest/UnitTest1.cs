@@ -14,9 +14,8 @@ namespace EmployeePayrollMSTest
         {
             //Arrange
             string empName = "Teressa";
-            double basicPay = 30000;
-            EmployeeRepository empRepository = new EmployeeRepository();
-            EmployeeModel empModel = new EmployeeModel();
+            double basicPay = 40000;
+            EmployeeRepository empRepository = new EmployeeRepository();            
             //Act
             empRepository.UpdateSalaryIntoDatabase(empName, basicPay);
             double expectedPay = empRepository.ReadUpdatedSalaryFromDatabase(empName);
