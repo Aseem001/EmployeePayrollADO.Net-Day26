@@ -14,16 +14,19 @@ namespace Ado.NetEmployeePayroll
         {                      
             EmployeeRepository repository = new EmployeeRepository();
             //UC 2
-            //repository.GetFullTableDetails();          
+            repository.GetFullTableDetails();          
 
             //UC 3
-            //Console.WriteLine(repository.UpdateSalaryIntoDatabase("Teressa", 30000) ? "Update done successfully " : "Update Failed");
+            Console.WriteLine(repository.UpdateSalaryIntoDatabase("Teressa", 30000) ? "Update done successfully " : "Update Failed");
 
             //UC 5
-            //repository.GetEmployeesFromForDateRange("2021 - 02 - 01");
+            repository.GetEmployeesFromForDateRange("2021 - 02 - 01");
 
             //UC 6
             repository.FindGroupedByGenderData();
+
+            //UC 7
+            repository.InsertIntoMultipleTablesWithTransactions();           
         }
 
         /// <summary>
@@ -33,7 +36,7 @@ namespace Ado.NetEmployeePayroll
         {
             EmployeeRepository repository = new EmployeeRepository();
             EmployeeModel model = new EmployeeModel();
-            model.EmployeeName = "Aseem";
+            model.EmployeeName = "Bradman";
             model.Address = "Hyderabad";
             model.BasicPay = 80000;
             model.Deductions = 5000;
@@ -44,7 +47,7 @@ namespace Ado.NetEmployeePayroll
             model.Tax = 1000;
             model.StartDate = DateTime.Now;
             model.TaxablePay = 75000;
-            Console.WriteLine(repository.AddEmployee(model) ? "Record inserted successfully " : "Failed");
-        }
+            Console.WriteLine(repository.AddEmployee(model) ? "Record inserted successfully " : "Failed");           
+        }               
     }
 }

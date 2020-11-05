@@ -33,7 +33,7 @@ namespace Ado.NetEmployeePayroll
         {
             //Creates a new connection for every method to avoid "ConnectionString property not initialized" exception
             DBConnection dbc = new DBConnection();
-            connection = dbc.GetConnection(); 
+            connection = dbc.GetConnection();
             EmployeeModel model = new EmployeeModel();
             try
             {
@@ -58,7 +58,7 @@ namespace Ado.NetEmployeePayroll
                             model.TaxablePay = reader.GetDouble(9);
                             model.Tax = reader.GetDouble(10);
                             model.NetPay = reader.GetDouble(11);
-                            Console.WriteLine("EmpId:{0}\nEmpName:{1}\nStartDate:{2}\nGender:{3}\nPhoneNumber:{4}\nAddress:{5}\nDepartment:{6}\nBasicPay:{7}\nDeductions:{8}\nTaxablePay:{9}\nTax:{10}\nNetPay:{11}", model.EmployeeID, model.EmployeeName, model.StartDate.ToShortDateString(), model.Gender, model.PhoneNumber, model.Address, model.Department, model.BasicPay,model.Deductions, model.TaxablePay, model.Tax, model.NetPay);
+                            Console.WriteLine("EmpId:{0}\nEmpName:{1}\nStartDate:{2}\nGender:{3}\nPhoneNumber:{4}\nAddress:{5}\nDepartment:{6}\nBasicPay:{7}\nDeductions:{8}\nTaxablePay:{9}\nTax:{10}\nNetPay:{11}", model.EmployeeID, model.EmployeeName, model.StartDate.ToShortDateString(), model.Gender, model.PhoneNumber, model.Address, model.Department, model.BasicPay, model.Deductions, model.TaxablePay, model.Tax, model.NetPay);
                             Console.WriteLine("\n");
                         }
                     }
@@ -66,7 +66,7 @@ namespace Ado.NetEmployeePayroll
                     {
                         Console.WriteLine("No data found");
                     }
-                    reader.Close();               
+                    reader.Close();
                 }
             }
             catch (Exception ex)
@@ -75,7 +75,8 @@ namespace Ado.NetEmployeePayroll
             }
             finally
             {
-                connection.Close();
+                if (connection.State.Equals("Open"))
+                    connection.Close();
             }
         }
 
@@ -86,7 +87,7 @@ namespace Ado.NetEmployeePayroll
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
         public bool AddEmployee(EmployeeModel model)
-        {          
+        {
             DBConnection dbc = new DBConnection();
             connection = dbc.GetConnection();
             try
@@ -122,7 +123,8 @@ namespace Ado.NetEmployeePayroll
             }
             finally
             {
-                connection.Close();
+                if (connection.State.Equals("Open"))
+                    connection.Close();
             }
         }
 
@@ -133,7 +135,7 @@ namespace Ado.NetEmployeePayroll
         /// <param name="basicPay">The basic pay.</param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        public bool UpdateSalaryIntoDatabase(string empName,double basicPay)
+        public bool UpdateSalaryIntoDatabase(string empName, double basicPay)
         {
             DBConnection dbc = new DBConnection();
             connection = dbc.GetConnection();
@@ -145,14 +147,14 @@ namespace Ado.NetEmployeePayroll
                     string query = @"update dbo.employee_payroll set BasicPay=@p1 where EmpName=@p2";
                     SqlCommand command = new SqlCommand(query, connection);
                     command.Parameters.AddWithValue("@p1", basicPay);
-                    command.Parameters.AddWithValue("@p2", empName);                    
+                    command.Parameters.AddWithValue("@p2", empName);
                     var result = command.ExecuteNonQuery();
                     connection.Close();
                     if (result != 0)
                     {
                         return true;
                     }
-                    return false;                   
+                    return false;
                 }
             }
             catch (Exception ex)
@@ -161,7 +163,8 @@ namespace Ado.NetEmployeePayroll
             }
             finally
             {
-                connection.Close();
+                if (connection.State.Equals("Open"))
+                    connection.Close();
             }
         }
 
@@ -174,7 +177,7 @@ namespace Ado.NetEmployeePayroll
         public double ReadUpdatedSalaryFromDatabase(string empName)
         {
             DBConnection dbc = new DBConnection();
-            connection = dbc.GetConnection();       
+            connection = dbc.GetConnection();
             try
             {
                 using (connection)
@@ -192,7 +195,8 @@ namespace Ado.NetEmployeePayroll
             }
             finally
             {
-                connection.Close();
+                if (connection.State.Equals("Open"))
+                    connection.Close();
             }
         }
 
@@ -201,7 +205,7 @@ namespace Ado.NetEmployeePayroll
         /// </summary>
         /// <param name="date">The date.</param>
         public void GetEmployeesFromForDateRange(string date)
-        {            
+        {
             string query = $@"select * from dbo.employee_payroll where StartDate between cast('{date}' as date) and cast(getdate() as date)";
             GetAllEmployees(query);
         }
@@ -222,9 +226,9 @@ namespace Ado.NetEmployeePayroll
                     SqlCommand command = new SqlCommand(query, connection);
                     connection.Open();
                     SqlDataReader reader = command.ExecuteReader();
-                    if(reader.HasRows)
+                    if (reader.HasRows)
                     {
-                        while(reader.Read())
+                        while (reader.Read())
                         {
                             string gender = reader[0].ToString();
                             int empCount = reader.GetInt32(1);
@@ -248,7 +252,132 @@ namespace Ado.NetEmployeePayroll
             }
             finally
             {
+                if(connection.State.Equals("Open"))
                 connection.Close();
+            }
+        }
+        
+        /// <summary>
+        /// UC 7 : Inserts data into multiple tables using transactions.
+        /// </summary>
+        public void InsertIntoMultipleTablesWithTransactions()
+        {
+            DBConnection dbc = new DBConnection();
+            connection = dbc.GetConnection();
+
+            Console.WriteLine("Enter EmployeeID");
+            int empID = Convert.ToInt32(Console.ReadLine());
+
+            Console.WriteLine("Enter Name:");
+            string empName = Console.ReadLine();
+
+            DateTime startDate = DateTime.Now;
+
+            Console.WriteLine("Enter Address:");
+            string address = Console.ReadLine();
+
+            Console.WriteLine("Enter Gender:");
+            string gender = Console.ReadLine();
+
+            Console.WriteLine("Enter PhoneNumber:");
+            double phonenumber = Convert.ToDouble(Console.ReadLine());           
+
+            Console.WriteLine("Enter BasicPay:");
+            int basicPay = Convert.ToInt32(Console.ReadLine());
+
+            Console.WriteLine("Enter Deductions:");
+            int deductions = Convert.ToInt32(Console.ReadLine());
+
+            Console.WriteLine("Enter TaxablePay:");
+            int taxablePay = Convert.ToInt32(Console.ReadLine());
+
+            Console.WriteLine("Enter Tax:");
+            int tax = Convert.ToInt32(Console.ReadLine());
+
+            Console.WriteLine("Enter NetPay:");
+            int netPay = Convert.ToInt32(Console.ReadLine());
+
+            Console.WriteLine("Enter CompanyId:");
+            int companyId = Convert.ToInt32(Console.ReadLine());
+
+            Console.WriteLine("Enter CompanyName:");
+            string companyName = Console.ReadLine();
+
+            Console.WriteLine("Enter DeptId:");
+            int deptId = Convert.ToInt32(Console.ReadLine());
+
+            Console.WriteLine("Enter DeptName:");
+            string deptName = Console.ReadLine();
+
+            using (connection)
+            {
+                connection.Open();
+
+                // Start a local transaction.
+                SqlTransaction sqlTran = connection.BeginTransaction();
+
+                // Enlist a command in the current transaction.
+                SqlCommand command = connection.CreateCommand();
+                command.Transaction = sqlTran;
+
+                try
+                {
+                    // Execute 1st command
+                    command.CommandText ="insert into company values(@company_id,@company_name)";
+                    command.Parameters.AddWithValue("@company_id", companyId);
+                    command.Parameters.AddWithValue("@company_name", companyName);
+                    command.ExecuteScalar();
+
+                    // Execute 2nd command
+                    command.CommandText ="insert into employee values(@emp_id,@EmpName,@gender,@phone_number,@address,@startDate,@company_id)";
+                    command.Parameters.AddWithValue("@emp_id", empID);
+                    command.Parameters.AddWithValue("@EmpName", empName);
+                    command.Parameters.AddWithValue("@startDate", startDate);
+                    command.Parameters.AddWithValue("@gender", gender);
+                    command.Parameters.AddWithValue("@phone_number", phonenumber);
+                    command.Parameters.AddWithValue("@address", address);
+                    command.ExecuteScalar();
+
+                    // Execute 3rd command
+                    command.CommandText = "insert into payroll values(@emp_id,@Basic_Pay,@Deductions,@Taxable_pay,@Income_tax,@Net_pay)";
+                    command.Parameters.AddWithValue("@Basic_Pay", basicPay);
+                    command.Parameters.AddWithValue("@Deductions", deductions);
+                    command.Parameters.AddWithValue("@Taxable_pay", taxablePay);
+                    command.Parameters.AddWithValue("@Income_tax", tax);
+                    command.Parameters.AddWithValue("@Net_pay", netPay);
+                    command.ExecuteScalar();
+
+                    // Execute 4th command
+                    command.CommandText = "insert into department values(@dept_id,@dept_name)";
+                    command.Parameters.AddWithValue("@dept_id", deptId);
+                    command.Parameters.AddWithValue("@dept_name", deptName);
+                    command.ExecuteScalar();
+
+                    // Execute 5th command
+                    command.CommandText = "insert into employee_dept values(@emp_id,@dept_id)";                    
+                    command.ExecuteNonQuery();
+
+                    // Commit the transaction after all commands.
+                    sqlTran.Commit();
+                    Console.WriteLine("All records were added into the database.");
+                }
+                catch (Exception ex)
+                {
+                    // Handle the exception if the transaction fails to commit.
+                    Console.WriteLine(ex.Message);
+                    try
+                    {
+                        // Attempt to roll back the transaction.
+                        sqlTran.Rollback();
+                    }
+                    catch (Exception exRollback)
+                    {
+                        // Throws an InvalidOperationException if the connection
+                        // is closed or the transaction has already been rolled
+                        // back on the server.
+                        Console.WriteLine(exRollback.Message);
+                    }
+                }
             }
         }
     }
